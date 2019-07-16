@@ -1,0 +1,33 @@
+{
+  "name": "serilogger",
+  "version": "0.0.1-dev-0002",
+  "description": "A structured logging framework for JavaScript, inspired by Serilog.",
+  "main": "dist/serilogger.js",
+  "jsnext:main": "dist/serillogger.es6.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf .rpt2_cache && rollup -c",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davisb10/serilogger.git"
+  },
+  "keywords": [
+    "serilog",
+    "logging",
+    "structured-logging"
+  ],
+  "author": "davisb10",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/davisb10/serilogger/issues"
+  },
+  "homepage": "https://github.com/davisb10/serilogger#readme",
+  "devDependencies": {
+    "rimraf": "^2.6.3",
+    "rollup": "^1.17.0",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "typescript": "^3.5.3"
+  }
+}

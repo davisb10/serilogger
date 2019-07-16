@@ -7,6 +7,6 @@ node_js:
 install:
   - npm install -g typescript
   - npm install
-# after_success:
-#  - npm run test-coverage
-#  - cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
+ after_success:
+  - npm run test-coverage
+  - cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage

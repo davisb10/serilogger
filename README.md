@@ -4,6 +4,7 @@ A structured logging framework for JavaScript, inspired by [Serilog](http://seri
 
 [![npm](https://img.shields.io/npm/v/serilogger.svg)](https://www.npmjs.com/package/serilogger)
 [![Build Status](https://travis-ci.org/davisb10/serilogger.svg?branch=master)](https://travis-ci.org/davisb10/serilogger)
+[![Coverage Status](https://coveralls.io/repos/github/davisb10/serilogger/badge.svg?branch=master)](https://coveralls.io/github/davisb10/serilogger?branch=master)
 
 _Note: Originally forked from the structured-log project_
 

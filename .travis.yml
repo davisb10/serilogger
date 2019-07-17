@@ -9,5 +9,3 @@ install:
   - npm install
 after_success:
   - jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls
-  #- npm run test-coverage
-  #- cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage

@@ -93,7 +93,7 @@ export class ConsoleSink implements Sink {
         if (this.options.includeTimestamps) {
             output = `${e.timestamp} ${output}`;
         }
-        const values: string[] = [];
+        const values: any[] = [];
         if (this.options.includeProperties) {
             for (const key in e.properties) {
                 if (e.properties.hasOwnProperty(key)) {
@@ -102,7 +102,7 @@ export class ConsoleSink implements Sink {
             }
         }
         if (e.error instanceof Error) {
-            values.push('\n', e.error.message);
+            values.push('\n', e.error);
         }
         logMethod(output, ...values);
     }

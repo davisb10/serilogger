@@ -16,7 +16,7 @@ export class MessageTemplate {
      */
     raw: string;
 
-    private tokens: Token[];
+    private readonly tokens: Token[];
 
     /**
      * Creates a new MessageTemplate instance with the given template.
@@ -41,7 +41,7 @@ export class MessageTemplate {
         }
         properties = properties || {};
         const result = [];
-        for (var i = 0; i < this.tokens.length; ++i) {
+        for (let i = 0; i < this.tokens.length; ++i) {
             const token = this.tokens[i];
             if (typeof token.name === 'string') {
                 if (properties.hasOwnProperty(token.name)) {

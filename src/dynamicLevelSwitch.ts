@@ -48,7 +48,7 @@ export class DynamicLevelSwitch implements LogEventLevelSwitch<Promise<any>> {
         return this.minLevel = LogEventLevel.off;
     }
 
-    isEnabled(level: LogEventLevel) {
+    isEnabled(level: LogEventLevel): boolean {
         return this.minLevel === null || isEnabled(this.minLevel, level);
     }
 }

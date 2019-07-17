@@ -78,7 +78,7 @@ export class LoggerConfiguration {
      * Adds an enricher to the pipeline.
      */
     enrich(enricher: Object | ObjectFactory): LoggerConfiguration {
-        if (enricher instanceof Function) {
+        if (enricher instanceof Function || enricher instanceof Object) {
             this._pipeline.addStage(new EnrichStage(enricher));
         } else {
             throw new TypeError('Argument "enricher" must be either a function or an object.');

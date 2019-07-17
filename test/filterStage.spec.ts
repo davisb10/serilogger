@@ -19,8 +19,8 @@ describe('FilterStage', () => {
         ];
         const filteredEvents = filterStage.emit(events);
         expect(filteredEvents).to.have.length(2);
-        expect(filteredEvents[0]).to.have.deep.property('messageTemplate.raw', 'B Message 1');
-        expect(filteredEvents[1]).to.have.deep.property('messageTemplate.raw', 'B Message 2');
+        expect(filteredEvents[0]).to.have.nested.property('messageTemplate.raw', 'B Message 1');
+        expect(filteredEvents[1]).to.have.nested.property('messageTemplate.raw', 'B Message 2');
     });
 
     it('does nothing when flushed', () => {

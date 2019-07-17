@@ -3,9 +3,8 @@ node_js:
   - "node"
   - "10"
   - "8"
-  - "6"
 install:
   - npm install -g typescript
   - npm install
 after_success:
-  - jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls
+  - jest --coverage --coverageReporters=text-lcov | coveralls

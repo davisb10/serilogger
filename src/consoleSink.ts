@@ -18,14 +18,24 @@ export interface ConsoleSinkOptions {
     includeTimestamps?: boolean;
     includeProperties?: boolean;
     restrictedToMinimumLevel?: LogEventLevel;
+    removeLogLevelPrefix?: boolean;
 }
+
+export const defaultConsoleSinkOptions: ConsoleSinkOptions = {
+    removeLogLevelPrefix: false,
+    includeTimestamps: false,
+    includeProperties: false
+};
 
 export class ConsoleSink implements Sink {
     private options: ConsoleSinkOptions;
     private console: ConsoleProxy;
 
     constructor(options?: ConsoleSinkOptions) {
-        this.options = options || {};
+        this.options = {
+            ...defaultConsoleSinkOptions,
+            ...(options || {})
+        };
         const internalConsole = this.options.console || typeof console !== 'undefined' && console || null;
         const stub = function () {
         };
@@ -89,10 +99,9 @@ export class ConsoleSink implements Sink {
     }
 
     private writeToConsole(logMethod: Function, prefix: string, e: LogEvent) {
-        let output = `[${prefix}] ${e.messageTemplate.render(e.properties)}`;
-        if (this.options.includeTimestamps) {
-            output = `${e.timestamp} ${output}`;
-        }
+        let output: string = `${e.messageTemplate.render(e.properties)}`;
+        if (!this.options.removeLogLevelPrefix) output = `[${prefix}] ${output}`;
+        if (this.options.includeTimestamps) output = `${e.timestamp} ${output}`;
         const values: any[] = [];
         if (this.options.includeProperties) {
             for (const key in e.properties) {

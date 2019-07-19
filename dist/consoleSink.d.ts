@@ -9,10 +9,12 @@ export interface ConsoleProxy {
 }
 export interface ConsoleSinkOptions {
     console?: any;
+    includeLogLevelPrefix?: boolean;
     includeTimestamps?: boolean;
     includeProperties?: boolean;
     restrictedToMinimumLevel?: LogEventLevel;
 }
+export declare const defaultConsoleSinkOptions: ConsoleSinkOptions;
 export declare class ConsoleSink implements Sink {
     private options;
     private console;

@@ -42,7 +42,7 @@
         return LogEvent;
     }());
 
-    var tokenizer = /\{@?\w+}/g;
+    var tokenizer = /{@?\w+}/g;
     /**
      * Represents a message template that can be rendered into a log message.
      */
@@ -51,6 +51,10 @@
          * Creates a new MessageTemplate instance with the given template.
          */
         function MessageTemplate(messageTemplate) {
+            /**
+             * Get or sets the JSON template string max length. Set to -1 for no max.
+             */
+            this.jsonTemplateStringMaxLength = 70;
             if (messageTemplate === null || !messageTemplate.length) {
                 throw new Error('Argument "messageTemplate" is required.');
             }
@@ -150,7 +154,9 @@
                 return property.toISOString();
             if (typeof property === 'object') {
                 var s = JSON.stringify(property);
-                if (s.length > 70) {
+                if (this.jsonTemplateStringMaxLength === -1)
+                    return s;
+                if (s.length > this.jsonTemplateStringMaxLength) {
                     s = s.slice(0, 67) + '...';
                 }
                 return s;
@@ -188,9 +194,17 @@
          */
         function Logger(pipeline, suppressErrors) {
             this.suppressErrors = true;
+            this._jsonTemplateStringMaxLength = 70;
             this.pipeline = pipeline;
             this.suppressErrors = typeof suppressErrors === 'undefined' || suppressErrors;
         }
+        /**
+         * Get or sets the JSON template string max length. Set to -1 for no max.
+         * @param length
+         */
+        Logger.prototype.setJSONTemplateStringMaxLength = function (length) {
+            this._jsonTemplateStringMaxLength = length;
+        };
         Logger.prototype.fatal = function (errorOrMessageTemplate) {
             var properties = [];
             for (var _i = 1; _i < arguments.length; _i++) {
@@ -332,85 +346,12 @@
         };
         Logger.prototype.write = function (level, rawMessageTemplate, unboundProperties, error) {
             var messageTemplate = new MessageTemplate(rawMessageTemplate);
+            messageTemplate.jsonTemplateStringMaxLength = this._jsonTemplateStringMaxLength;
             var properties = messageTemplate.bindProperties(unboundProperties);
             var logEvent = new LogEvent(new Date().toISOString(), level, messageTemplate, properties, error);
             this.pipeline.emit([logEvent]);
         };
         return Logger;
-    }());
-
-    var ConsoleSink = /** @class */ (function () {
-        function ConsoleSink(options) {
-            this.options = options || {};
-            var internalConsole = this.options.console || typeof console !== 'undefined' && console || null;
-            var stub = function () {
-            };
-            // console.debug is no-op for Node, so use console.log instead.
-            var nodeConsole = !this.options.console &&
-                typeof process !== 'undefined' &&
-                process.versions &&
-                process.versions.node;
-            this.console = {
-                error: (internalConsole && (internalConsole.error || internalConsole.log)) || stub,
-                warn: (internalConsole && (internalConsole.warn || internalConsole.log)) || stub,
-                info: (internalConsole && (internalConsole.info || internalConsole.log)) || stub,
-                debug: (internalConsole && ((!nodeConsole && internalConsole.debug) || internalConsole.log)) || stub,
-                log: (internalConsole && internalConsole.log) || stub
-            };
-        }
-        ConsoleSink.prototype.emit = function (events) {
-            for (var i = 0; i < events.length; ++i) {
-                var e = events[i];
-                if (!isEnabled(this.options.restrictedToMinimumLevel, e.level))
-                    continue;
-                switch (e.level) {
-                    case exports.LogEventLevel.fatal:
-                        this.writeToConsole(this.console.error, 'Fatal', e);
-                        break;
-                    case exports.LogEventLevel.error:
-                        this.writeToConsole(this.console.error, 'Error', e);
-                        break;
-                    case exports.LogEventLevel.warning:
-                        this.writeToConsole(this.console.warn, 'Warning', e);
-                        break;
-                    case exports.LogEventLevel.information:
-                        this.writeToConsole(this.console.info, 'Information', e);
-                        break;
-                    case exports.LogEventLevel.debug:
-                        this.writeToConsole(this.console.debug, 'Debug', e);
-                        break;
-                    case exports.LogEventLevel.verbose:
-                        this.writeToConsole(this.console.debug, 'Verbose', e);
-                        break;
-                    default:
-                        this.writeToConsole(this.console.log, 'Log', e);
-                        break;
-                }
-            }
-            return null;
-        };
-        ConsoleSink.prototype.flush = function () {
-            return Promise.resolve();
-        };
-        ConsoleSink.prototype.writeToConsole = function (logMethod, prefix, e) {
-            var output = "[" + prefix + "] " + e.messageTemplate.render(e.properties);
-            if (this.options.includeTimestamps) {
-                output = e.timestamp + " " + output;
-            }
-            var values = [];
-            if (this.options.includeProperties) {
-                for (var key in e.properties) {
-                    if (e.properties.hasOwnProperty(key)) {
-                        values.push(e.properties[key]);
-                    }
-                }
-            }
-            if (e.error instanceof Error) {
-                values.push('\n', e.error.message);
-            }
-            logMethod.apply(void 0, [output].concat(values));
-        };
-        return ConsoleSink;
     }());
 
     /*! *****************************************************************************
@@ -490,6 +431,86 @@
         }
     }
 
+    var defaultConsoleSinkOptions = {
+        includeLogLevelPrefix: true,
+        includeTimestamps: false,
+        includeProperties: false
+    };
+    var ConsoleSink = /** @class */ (function () {
+        function ConsoleSink(options) {
+            this.options = __assign({}, defaultConsoleSinkOptions, (options || {}));
+            var internalConsole = this.options.console || typeof console !== 'undefined' && console || null;
+            var stub = function () {
+            };
+            // console.debug is no-op for Node, so use console.log instead.
+            var nodeConsole = !this.options.console &&
+                typeof process !== 'undefined' &&
+                process.versions &&
+                process.versions.node;
+            this.console = {
+                error: (internalConsole && (internalConsole.error || internalConsole.log)) || stub,
+                warn: (internalConsole && (internalConsole.warn || internalConsole.log)) || stub,
+                info: (internalConsole && (internalConsole.info || internalConsole.log)) || stub,
+                debug: (internalConsole && ((!nodeConsole && internalConsole.debug) || internalConsole.log)) || stub,
+                log: (internalConsole && internalConsole.log) || stub
+            };
+        }
+        ConsoleSink.prototype.emit = function (events) {
+            for (var i = 0; i < events.length; ++i) {
+                var e = events[i];
+                if (!isEnabled(this.options.restrictedToMinimumLevel, e.level))
+                    continue;
+                switch (e.level) {
+                    case exports.LogEventLevel.fatal:
+                        this.writeToConsole(this.console.error, 'Fatal', e);
+                        break;
+                    case exports.LogEventLevel.error:
+                        this.writeToConsole(this.console.error, 'Error', e);
+                        break;
+                    case exports.LogEventLevel.warning:
+                        this.writeToConsole(this.console.warn, 'Warning', e);
+                        break;
+                    case exports.LogEventLevel.information:
+                        this.writeToConsole(this.console.info, 'Information', e);
+                        break;
+                    case exports.LogEventLevel.debug:
+                        this.writeToConsole(this.console.debug, 'Debug', e);
+                        break;
+                    case exports.LogEventLevel.verbose:
+                        this.writeToConsole(this.console.debug, 'Verbose', e);
+                        break;
+                    default:
+                        this.writeToConsole(this.console.log, 'Log', e);
+                        break;
+                }
+            }
+            return null;
+        };
+        ConsoleSink.prototype.flush = function () {
+            return Promise.resolve();
+        };
+        ConsoleSink.prototype.writeToConsole = function (logMethod, prefix, e) {
+            var output = "" + e.messageTemplate.render(e.properties);
+            if (this.options.includeLogLevelPrefix)
+                output = "[" + prefix + "] " + output;
+            if (this.options.includeTimestamps)
+                output = e.timestamp + " " + output;
+            var values = [];
+            if (this.options.includeProperties) {
+                for (var key in e.properties) {
+                    if (e.properties.hasOwnProperty(key)) {
+                        values.push(e.properties[key]);
+                    }
+                }
+            }
+            if (e.error instanceof Error) {
+                values.push('\n', e.error);
+            }
+            logMethod.apply(void 0, [output].concat(values));
+        };
+        return ConsoleSink;
+    }());
+
     var defaultBatchedSinkOptions = {
         maxSize: 100,
         period: 5,
@@ -499,6 +520,7 @@
         function BatchedSink(innerSink, options) {
             this.durableStorageKey = "serilogger-batched-sink-durable-cache";
             this.batchKey = '';
+            this.shouldCycleContinue = true;
             this.innerSink = innerSink || undefined;
             this.options = __assign({}, defaultBatchedSinkOptions, (options || {}));
             this.batchedEvents = [];
@@ -543,6 +565,7 @@
             var corePromise = this.flushCore();
             return corePromise instanceof Promise ? corePromise : Promise.resolve();
         };
+
         BatchedSink.prototype.emitCore = function (events) {
             return this.innerSink ? this.innerSink.emit(events) : null;
         };
@@ -553,6 +576,8 @@
             var _this = this;
             if (this.batchTimeout)
                 clearTimeout(this.batchTimeout);
+            if (!this.shouldCycleContinue)
+                return; // Clears the timeout object
             if (this.batchedEvents.length) {
                 var processEvents_1 = this.batchedEvents.slice(0);
                 this.batchedEvents.length = 0;
@@ -884,7 +909,7 @@
          * Adds an enricher to the pipeline.
          */
         LoggerConfiguration.prototype.enrich = function (enricher) {
-            if (enricher instanceof Function) {
+            if (enricher instanceof Function || enricher instanceof Object) {
                 this._pipeline.addStage(new EnrichStage(enricher));
             }
             else {
@@ -908,16 +933,11 @@
         return LoggerConfiguration;
     }());
 
-    function configure() {
-        return new LoggerConfiguration();
-    }
-
     exports.BatchedSink = BatchedSink;
     exports.ConsoleSink = ConsoleSink;
     exports.DynamicLevelSwitch = DynamicLevelSwitch;
     exports.Logger = Logger;
     exports.LoggerConfiguration = LoggerConfiguration;
-    exports.configure = configure;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

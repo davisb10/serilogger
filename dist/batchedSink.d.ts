@@ -22,9 +22,14 @@ export declare class BatchedSink implements Sink {
     protected batchedEvents: LogEvent[];
     private batchTimeout;
     private batchKey;
+    private shouldCycleContinue;
     constructor(innerSink?: Sink, options?: BatchedSinkOptions);
     emit(events: LogEvent[]): LogEvent[];
     flush(): Promise<any>;
+    /**
+     * The will stop the cycle. Used for testing.
+     */
+    stopCycle(): void;
     protected emitCore(events: LogEvent[]): any;
     protected flushCore(): Promise<any>;
     protected cycleBatch(): void;

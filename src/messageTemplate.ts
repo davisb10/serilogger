@@ -1,4 +1,4 @@
-const tokenizer = /\{@?\w+}/g;
+const tokenizer = /{@?\w+}/g;
 
 interface Token {
     name?: string;
@@ -15,6 +15,11 @@ export class MessageTemplate {
      * Gets or sets the raw message template of this instance.
      */
     raw: string;
+
+    /**
+     * Get or sets the JSON template string max length. Set to -1 for no max.
+     */
+    jsonTemplateStringMaxLength = 70;
 
     private readonly tokens: Token[];
 
@@ -129,7 +134,10 @@ export class MessageTemplate {
 
         if (typeof property === 'object') {
             let s = JSON.stringify(property);
-            if (s.length > 70) {
+
+            if (this.jsonTemplateStringMaxLength === -1) return s;
+
+            if (s.length > this.jsonTemplateStringMaxLength) {
                 s = s.slice(0, 67) + '...';
             }
 

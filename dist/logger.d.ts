@@ -7,10 +7,16 @@ import { Sink } from './sink';
 export declare class Logger implements Sink {
     private pipeline;
     suppressErrors: boolean;
+    private _jsonTemplateStringMaxLength;
     /**
      * Creates a new logger instance using the specified pipeline.
      */
     constructor(pipeline: Pipeline, suppressErrors?: boolean);
+    /**
+     * Get or sets the JSON template string max length. Set to -1 for no max.
+     * @param length
+     */
+    setJSONTemplateStringMaxLength(length: number): void;
     /**
      * Logs an event with the {LogEventLevel.fatal} severity.
      * @param {string} messageTemplate Message template for the log event.

@@ -169,6 +169,7 @@ const logger2 = new LoggerConfiguration()
 #### Built-in sinks
 |Name|Description|
 |---|---|
+|[BatchedSink](#batched-sink)|Outputs events periodically and/or by batch size.|
 |[ConsoleSink](#console-sink)|Outputs events through the `console` object in Node or the browser.|
 
 #### 3rd party sinks
@@ -267,6 +268,7 @@ It supports the following properties:
 |`console`|An object with a console interface (providing `log()`, `info()`, etc.) that will be used by the sink when writing output.|`console` global|
 |`includeProperties`|If `true`, the properties of the log event will be written to the console in addition to the message.|`false`|
 |`includeTimestamps`|If `true`, timestamps will be included in the message that is written to the console.|`false`|
+|`removeLogLevelPrefix`| If `true`, the prefix (e.g. [Information]) will not be included in the message|`false`|
 |`restrictedToMinimumLevel`|If set, only events of the specified level or higher will be output to the console.||
 
 ### Batched Sink

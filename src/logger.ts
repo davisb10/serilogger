@@ -11,12 +11,22 @@ export class Logger implements Sink {
 
     suppressErrors: boolean = true;
 
+    private _jsonTemplateStringMaxLength = 70;
+
     /**
      * Creates a new logger instance using the specified pipeline.
      */
     constructor(pipeline: Pipeline, suppressErrors?: boolean) {
         this.pipeline = pipeline;
         this.suppressErrors = typeof suppressErrors === 'undefined' || suppressErrors;
+    }
+
+    /**
+     * Get or sets the JSON template string max length. Set to -1 for no max.
+     * @param length
+     */
+    setJSONTemplateStringMaxLength(length: number) {
+        this._jsonTemplateStringMaxLength = length;
     }
 
     /**
@@ -221,6 +231,7 @@ export class Logger implements Sink {
 
     private write(level: LogEventLevel, rawMessageTemplate: string, unboundProperties: any[], error?: Error) {
         const messageTemplate = new MessageTemplate(rawMessageTemplate);
+        messageTemplate.jsonTemplateStringMaxLength = this._jsonTemplateStringMaxLength;
         const properties = messageTemplate.bindProperties(unboundProperties);
         const logEvent = new LogEvent(
             new Date().toISOString(),

@@ -6,7 +6,11 @@ export declare class MessageTemplate {
      * Gets or sets the raw message template of this instance.
      */
     raw: string;
-    private tokens;
+    /**
+     * Get or sets the JSON template string max length. Set to -1 for no max.
+     */
+    jsonTemplateStringMaxLength: number;
+    private readonly tokens;
     /**
      * Creates a new MessageTemplate instance with the given template.
      */

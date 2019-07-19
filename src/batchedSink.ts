@@ -34,6 +34,8 @@ export class BatchedSink implements Sink {
     private batchTimeout: NodeJS.Timeout | undefined;
     private batchKey: string = '';
 
+    private shouldCycleContinue = true;
+
     constructor(innerSink?: Sink, options?: BatchedSinkOptions) {
         this.innerSink = innerSink || undefined;
         this.options = {
@@ -59,6 +61,7 @@ export class BatchedSink implements Sink {
             this.emit(initialBatch);
         }
     }
+
 
     emit(events: LogEvent[]) {
         if (this.batchedEvents.length + events.length <= this.options.maxSize) {
@@ -89,6 +92,17 @@ export class BatchedSink implements Sink {
         return corePromise instanceof Promise ? corePromise : Promise.resolve();
     }
 
+    /* start_test_code */
+
+    /**
+     * The will stop the cycle. Used for testing.
+     */
+    stopCycle() {
+        this.shouldCycleContinue = false;
+    }
+
+    /* end_test_code */
+
     protected emitCore(events: LogEvent[]): any {
         return this.innerSink ? this.innerSink.emit(events) : null;
     }
@@ -99,6 +113,9 @@ export class BatchedSink implements Sink {
 
     protected cycleBatch() {
         if (this.batchTimeout) clearTimeout(this.batchTimeout);
+
+        if (!this.shouldCycleContinue) return; // Clears the timeout object
+
         if (this.batchedEvents.length) {
             const processEvents = this.batchedEvents.slice(0);
             this.batchedEvents.length = 0;
@@ -114,7 +131,9 @@ export class BatchedSink implements Sink {
                     this.batchedEvents.unshift(...processEvents);
                 });
         }
+
         this.batchKey = `${this.durableStorageKey}-${new Date().getTime()}`;
+
         if (!isNaN(this.options.period) && this.options.period > 0) {
             this.batchTimeout = setTimeout(
                 () => this.cycleBatch(),

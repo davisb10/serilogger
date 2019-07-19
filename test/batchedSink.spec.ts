@@ -16,6 +16,8 @@ describe('BatchedSink', () => {
 
             expect(batchedSink).to.have.nested.property('options.maxSize', defaultBatchedSinkOptions.maxSize);
             expect(batchedSink).to.have.nested.property('options.period', defaultBatchedSinkOptions.period);
+
+            batchedSink.stopCycle();
         });
 
         it('uses the passed options', () => {
@@ -27,6 +29,8 @@ describe('BatchedSink', () => {
 
             expect(batchedSink).to.have.nested.property('options.maxSize', 50);
             expect(batchedSink).to.have.nested.property('options.period', 2);
+
+            batchedSink.stopCycle();
         });
     });
 
@@ -45,6 +49,8 @@ describe('BatchedSink', () => {
 
             return batchedSink.flush().then(() => {
                 innerSink.verify(m => m.emit(TypeMoq.It.isAny()), TypeMoq.Times.once());
+
+                batchedSink.stopCycle();
             });
         });
 
@@ -84,6 +90,8 @@ describe('BatchedSink', () => {
                 expect(emittedBatches[2]).to.have.length(3);
                 expect(emittedBatches[3]).to.have.length(2);
                 expect(emittedBatches[3][1]).to.have.nested.property('messageTemplate.raw', 'Test 11');
+
+                batchedSink.stopCycle();
             });
         });
 
@@ -113,6 +121,8 @@ describe('BatchedSink', () => {
                     expect(emittedBatches).to.have.length(1);
                     expect(emittedBatches[0]).to.have.length(3);
                     expect(emittedBatches[0][1]).to.have.nested.property('messageTemplate.raw', 'Test 2');
+
+                    batchedSink.stopCycle();
 
                     resolve();
                 }, 25);
@@ -148,6 +158,8 @@ describe('BatchedSink', () => {
             return sink.flush().then(() => {
                 expect(emitCoreCalled).to.equal(2);
                 expect(flushCoreCalled).to.equal(1);
+
+                sink.stopCycle();
             });
         });
 
@@ -169,6 +181,9 @@ describe('BatchedSink', () => {
 
             const flushPromise = sink.flush();
             expect(flushPromise).to.be.instanceOf(Promise);
+
+            sink.stopCycle();
+
             return flushPromise;
         });
     });
@@ -180,6 +195,8 @@ describe('BatchedSink', () => {
             const batchedSink = new BatchedSink(innerSink.object);
             return batchedSink.flush().then(() => {
                 innerSink.verify(m => m.flush(), TypeMoq.Times.once());
+
+                batchedSink.stopCycle();
             });
         });
     });
@@ -206,6 +223,8 @@ describe('BatchedSink', () => {
             return batchedSink.flush().then(() => {
                 expect(emittedBatches[0][0]).to.have.nested.property('messageTemplate.raw', 'Test 1');
                 expect(emittedBatches[0][1]).to.have.nested.property('messageTemplate.raw', 'Test 2');
+
+                batchedSink.stopCycle();
             });
         });
 
@@ -223,6 +242,8 @@ describe('BatchedSink', () => {
             ]);
 
             expect(durableStore.length).to.equal(1);
+
+            batchedSink.stopCycle();
         });
 
         it('cleans up the stored events once they have been shipped', () => {
@@ -242,6 +263,8 @@ describe('BatchedSink', () => {
 
             return batchedSink.flush().then(() => {
                 expect(durableStore.length).to.equal(0);
+
+                batchedSink.stopCycle();
             });
         });
     });

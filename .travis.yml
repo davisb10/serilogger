@@ -7,4 +7,4 @@ install:
   - npm install -g typescript
   - npm install
 after_success:
-  - jest --coverage --coverageReporters=text-lcov | coveralls
+  - jest --coverage --detectOpenHandles --coverageReporters=text-lcov | coveralls

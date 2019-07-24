@@ -11,11 +11,21 @@ _Note: Originally forked from the structured-log project_
 ## Basic Example
 
 ```js
+// ES6 Style
 import {LoggerConfiguration, ConsoleSink} from 'serilogger';
 
 const logger = new LoggerConfiguration()
                     .writeTo(new ConsoleSink())
                     .create();
+
+logger.info('Hello {Name}!', 'Greg');
+
+// Pre-ES6 Style
+var serilogger = require('serilogger');
+
+var logger = serilogger.configure()
+                         .writeTo(new serilogger.ConsoleSink())
+                         .create();
 
 logger.info('Hello {Name}!', 'Greg');
 ```
@@ -59,7 +69,7 @@ instance based on the pipeline configuration.
   .create();
 
 // The logger is ready for use!
-logger.verbose('Hello serilogjs!');
+logger.verbose('Hello serilogger!');
 ```
 
 ### Log Levels

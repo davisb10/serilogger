@@ -181,11 +181,7 @@ const logger2 = new LoggerConfiguration()
 |---|---|
 |[BatchedSink](#batched-sink)|Outputs events periodically and/or by batch size.|
 |[ConsoleSink](#console-sink)|Outputs events through the `console` object in Node or the browser.|
-
-#### 3rd party sinks
-|Name|Description|
-|---|---|
-|[SeqSink](https://github.com/Wedvich/structured-log-seq-sink)|Outputs events to a [Seq](https://getseq.net) server.|
+|[SeqSink](#seq-sink)|Outputs events to a Seq server|
 
 ### Filtering
 
@@ -323,3 +319,28 @@ It supports the following properties:
 |`durableStore`|An instance implementing the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) interface (such as `localStorage` in the browser, or [node-localstorage](https://github.com/lmaccherone/node-localstorage) for Node.js applications). If this is set, it will be used as an intermediate store for events until they have been successfully flushed through the pipeline.|`null`|
 |`maxSize`|The maximum number of events in a single batch. The sink will be flushed immediately when this limit is hit.|`100`|
 |`period`|The interval for autmoatic flushing of batches, in seconds.|`10`|
+
+### Seq Sink
+
+The `SeqSink` outputs events to a Seq logging server. It can be used like any of the other sinks.
+
+```js
+.writeTo(new SeqSink({
+  url: "http://localhost:5341",
+  apiKey: "API_KEY"
+}))
+```
+
+The `options` parameter is required, however the only required property is the `url`.
+It supports the following properties:
+
+|Key|Description|Required?|
+|---|---|---|
+|`apiKey`|API key to use|&#x2717;|
+|`compact`|If true, events be serialized using Serilog's compact format|&#x2717;|
+|`durable`|If true, events will be buffered in local storage if available|&#x2717;|
+|`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
+|`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
+|`url`|URL to the Seq server|&#x2713;|
+
+

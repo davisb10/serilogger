@@ -1,5 +1,5 @@
-import {LogEventLevel, LogEvent, isEnabled} from './logEvent';
-import {Sink} from './sink';
+import { LogEventLevel, LogEvent, isEnabled } from './logEvent';
+import { Sink } from './sink';
 
 export interface ConsoleProxy {
     error(message?: any, ...properties: any[]): any;

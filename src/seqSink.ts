@@ -79,7 +79,9 @@ export class SeqSink implements Sink {
                 const body = localStorage.getItem(storageKey);
                 requests[storageKey] = this.postToSeq(this.url, this.apiKey, this.compact, body)
                     .then(() => localStorage.removeItem(storageKey))
-                    .catch(reason => this.suppressErrors ? this.logSuppressedError(reason) : Promise.reject(reason));
+                    .catch(reason => {
+                        return this.suppressErrors ? this.logSuppressedError(reason) : Promise.reject(reason);
+                    });
             }
         }
 

@@ -1,4 +1,4 @@
-export { LogEventLevel } from './logEvent';
+export { LogEventLevel, LogEvent } from './logEvent';
 export { Logger } from './logger';
 export { ConsoleSink, ConsoleSinkOptions } from './consoleSink';
 export { BatchedSink, BatchedSinkOptions } from './batchedSink';

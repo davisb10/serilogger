@@ -1,6 +1,6 @@
 {
   "name": "serilogger",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A structured logging framework for JavaScript, inspired by Serilog.",
   "main": "dist/serilogger.js",
   "jsnext:main": "dist/serilogger.es6.js",

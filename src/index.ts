@@ -1,6 +1,7 @@
 export { LogEventLevel, LogEvent } from './logEvent';
 export { Logger } from './logger';
 export { ConsoleSink, ConsoleSinkOptions } from './consoleSink';
+export { ColoredConsoleSink } from './coloredConsoleSink';
 export { BatchedSink, BatchedSinkOptions } from './batchedSink';
 export { DynamicLevelSwitch } from './dynamicLevelSwitch';
 export { SeqSink, SeqSinkOptions } from './seqSink';

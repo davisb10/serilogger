@@ -32,13 +32,17 @@ logger.info('Hello {Name}!', 'Greg');
 
 The above code will print the following to the console:
 
-    [Information] Hello Greg!
+```plain
+[Information] Hello Greg!
+```
 
 ## Installation
 
 **serilogger** is distributed through [npm](https://www.npmjs.com/package/serilogger). Run the following:
 
-    npm i --save serilogger
+```Bash
+npm i --save serilogger
+```
 
 ## Configuration
 
@@ -177,10 +181,12 @@ const logger2 = new LoggerConfiguration()
 ```
 
 #### Built-in sinks
+
 |Name|Description|
 |---|---|
 |[BatchedSink](#batched-sink)|Outputs events periodically and/or by batch size.|
 |[ConsoleSink](#console-sink)|Outputs events through the `console` object in Node or the browser.|
+|[ColoredConsoleSink](#colored-console-sink)|Outputs the same as **ConsoleSink** but with **Colors**.|
 |[SeqSink](#seq-sink)|Outputs events to a Seq server|
 
 ### Filtering
@@ -277,6 +283,14 @@ It supports the following properties:
 |`removeLogLevelPrefix`| If `true`, the prefix (e.g. [Information]) will not be included in the message|`false`|
 |`restrictedToMinimumLevel`|If set, only events of the specified level or higher will be output to the console.||
 
+### Colored Console Sink
+
+The `ColoredConsoleSink`, has the same configuration as the regular [ConsoleSink](#console-sink).
+
+```js
+var coloredConsoleSink = new ColoredConsoleSink({ /* options */ });
+```
+
 ### Batched Sink
 
 The `BatchedSink` allows for batching events periodically and/or by batch size.
@@ -342,5 +356,3 @@ It supports the following properties:
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
 |`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
 |`url`|URL to the Seq server|&#x2713;|
-
-

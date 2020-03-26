@@ -28,7 +28,7 @@ export const defaultConsoleSinkOptions: ConsoleSinkOptions = {
 };
 
 export class ConsoleSink implements Sink {
-    private options: ConsoleSinkOptions;
+    protected options: ConsoleSinkOptions;
     private console: ConsoleProxy;
 
     constructor(options?: ConsoleSinkOptions) {
@@ -98,7 +98,7 @@ export class ConsoleSink implements Sink {
         return Promise.resolve();
     }
 
-    private writeToConsole(logMethod: Function, prefix: string, e: LogEvent) {
+    protected writeToConsole(logMethod: Function, prefix: string, e: LogEvent) {
         let output: string = `${e.messageTemplate.render(e.properties)}`;
         if (!this.options.removeLogLevelPrefix) output = `[${prefix}] ${output}`;
         if (this.options.includeTimestamps) output = `${e.timestamp} ${output}`;

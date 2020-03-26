@@ -8,6 +8,17 @@ import {LogEventLevel, LogEvent} from '../src/logEvent';
 import {MessageTemplate} from '../src/messageTemplate';
 
 describe('DynamicLevelSwitch', () => {
+    it('constructor(LogEventLevel.information)', () => {
+        const dynamicLevelSwitch = new DynamicLevelSwitch(LogEventLevel.information);
+        expect(dynamicLevelSwitch.isEnabled(LogEventLevel.information)).to.be.true;
+        expect(dynamicLevelSwitch.isEnabled(LogEventLevel.debug)).to.be.false;
+    })
+
+    it('constructor()', () => {
+        const dynamicLevelSwitch = new DynamicLevelSwitch();
+        expect(dynamicLevelSwitch.isEnabled(LogEventLevel.verbose)).to.be.true;
+    })
+
     it('sets the minimum level to fatal', () => {
         const dynamicLevelSwitch = new DynamicLevelSwitch();
         return dynamicLevelSwitch.fatal().then(() => {
@@ -35,6 +46,14 @@ describe('DynamicLevelSwitch', () => {
     it('sets the minimum level to information', () => {
         const dynamicLevelSwitch = new DynamicLevelSwitch();
         return dynamicLevelSwitch.information().then(() => {
+            expect(dynamicLevelSwitch.isEnabled(LogEventLevel.information)).to.be.true;
+            expect(dynamicLevelSwitch.isEnabled(LogEventLevel.debug)).to.be.false;
+        });
+    });
+
+    it('sets the minimum level to information with set', () => {
+        const dynamicLevelSwitch = new DynamicLevelSwitch();
+        return dynamicLevelSwitch.set(LogEventLevel.information).then(() => {
             expect(dynamicLevelSwitch.isEnabled(LogEventLevel.information)).to.be.true;
             expect(dynamicLevelSwitch.isEnabled(LogEventLevel.debug)).to.be.false;
         });

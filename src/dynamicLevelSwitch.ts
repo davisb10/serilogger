@@ -5,7 +5,11 @@ import {FilterStage} from './filterStage';
  * Allows dynamic control of the logging level.
  */
 export class DynamicLevelSwitch implements LogEventLevelSwitch<Promise<any>> {
-    private minLevel: LogEventLevel | null = null;
+    private minLevel?: LogEventLevel;
+
+    constructor(defaultLevel?: LogEventLevel) {
+        this.minLevel = defaultLevel
+    }
 
     /**
      * Gets or sets a delegate that can be called when the pipeline needs to be flushed.
@@ -48,8 +52,13 @@ export class DynamicLevelSwitch implements LogEventLevelSwitch<Promise<any>> {
         return this.minLevel = LogEventLevel.off;
     }
 
+    async set(level: LogEventLevel) {
+        await this.flushDelegate();
+        return this.minLevel = level;
+    }
+
     isEnabled(level: LogEventLevel): boolean {
-        return this.minLevel === null || isEnabled(this.minLevel, level);
+        return this.minLevel === undefined || isEnabled(this.minLevel, level);
     }
 }
 

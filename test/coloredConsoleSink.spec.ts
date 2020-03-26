@@ -5,15 +5,15 @@
 import {expect} from 'chai';
 import * as TypeMoq from 'typemoq';
 import {LogEvent, LogEventLevel} from '../src/logEvent';
-import {ConsoleSink} from '../src/consoleSink';
+import {ColoredConsoleSink} from '../src/coloredConsoleSink';
 import {MessageTemplate} from '../src/messageTemplate';
 import {ConcreteConsoleProxy} from './helpers';
 
-describe('ConsoleSink', () => {
+describe('ColoredConsoleSink', () => {
     describe('emit()', () => {
         it('logs error messages', () => {
             const consoleProxy = TypeMoq.Mock.ofType(ConcreteConsoleProxy);
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.fatal, new MessageTemplate('Test')),
                 new LogEvent('', LogEventLevel.error, new MessageTemplate('Test'))
@@ -23,7 +23,7 @@ describe('ConsoleSink', () => {
 
         it('logs warning messages', () => {
             const consoleProxy = TypeMoq.Mock.ofType(ConcreteConsoleProxy);
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.warning, new MessageTemplate('Test'))
             ]);
@@ -32,7 +32,7 @@ describe('ConsoleSink', () => {
 
         it('logs info messages', () => {
             const consoleProxy = TypeMoq.Mock.ofType(ConcreteConsoleProxy);
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.information, new MessageTemplate('Test'))
             ]);
@@ -41,7 +41,7 @@ describe('ConsoleSink', () => {
 
         it('logs debug and verbose messages', () => {
             const consoleProxy = TypeMoq.Mock.ofType(ConcreteConsoleProxy);
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.debug, new MessageTemplate('Test')),
                 new LogEvent('', LogEventLevel.verbose, new MessageTemplate('Test'))
@@ -51,7 +51,7 @@ describe('ConsoleSink', () => {
 
         it('logs messages with an unknown log level', () => {
             const consoleProxy = TypeMoq.Mock.ofType(ConcreteConsoleProxy);
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', 100, new MessageTemplate('Test'))
             ]);
@@ -69,7 +69,7 @@ describe('ConsoleSink', () => {
                     loggedProperty = property;
                     loggedError = error;
                 });
-            const consoleSink = new ConsoleSink({console: consoleProxy.object, includeProperties: true});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object, includeProperties: true});
             const error = new Error('Simple error test');
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.information, new MessageTemplate('Test {a}'), {a: 'b'}, error)
@@ -84,7 +84,7 @@ describe('ConsoleSink', () => {
                 log: (message?: any, ...properties: any[]) => {
                 }
             });
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.error, new MessageTemplate('Test')),
                 new LogEvent('', LogEventLevel.warning, new MessageTemplate('Test')),
@@ -96,7 +96,7 @@ describe('ConsoleSink', () => {
 
         it('does nothing if no log methods are available', () => {
             const consoleProxy = TypeMoq.Mock.ofInstance({});
-            const consoleSink = new ConsoleSink({console: consoleProxy.object});
+            const consoleSink = new ColoredConsoleSink({console: consoleProxy.object});
             consoleSink.emit([
                 new LogEvent('', LogEventLevel.error, new MessageTemplate('Test')),
                 new LogEvent('', LogEventLevel.warning, new MessageTemplate('Test')),
@@ -110,7 +110,7 @@ describe('ConsoleSink', () => {
                 log: (message?: any, ...properties: any[]) => {
                 }
             });
-            const consoleSink = new ConsoleSink({
+            const consoleSink = new ColoredConsoleSink({
                 console: consoleProxy.object,
                 restrictedToMinimumLevel: LogEventLevel.information
             });
@@ -131,7 +131,7 @@ describe('ConsoleSink', () => {
                     loggedMessage = message;
                 }
             };
-            const consoleSink = new ConsoleSink({
+            const consoleSink = new ColoredConsoleSink({
                 console: consoleProxy,
                 includeTimestamps: true
             });
@@ -148,7 +148,7 @@ describe('ConsoleSink', () => {
                     loggedMessage = message;
                 }
             };
-            const consoleSink = new ConsoleSink({
+            const consoleSink = new ColoredConsoleSink({
                 console: consoleProxy,
                 removeLogLevelPrefix: true
             });
@@ -167,7 +167,7 @@ describe('ConsoleSink', () => {
                     loggedProperties = properties;
                 }
             };
-            const consoleSink = new ConsoleSink({
+            const consoleSink = new ColoredConsoleSink({
                 console: consoleProxy,
                 includeProperties: true
             });
@@ -182,7 +182,7 @@ describe('ConsoleSink', () => {
 
     describe('flush()', () => {
         it('does nothing when flushed', () => {
-            return new ConsoleSink().flush();
+            return new ColoredConsoleSink().flush();
         });
     });
 });

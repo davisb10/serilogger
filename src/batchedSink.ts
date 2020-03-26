@@ -99,6 +99,7 @@ export class BatchedSink implements Sink {
      */
     stopCycle() {
         this.shouldCycleContinue = false;
+        if(this.batchTimeout) clearTimeout(this.batchTimeout)
     }
 
     /* end_test_code */

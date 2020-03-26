@@ -8,6 +8,7 @@ import {LoggerConfiguration} from '../src/loggerConfiguration';
 import {Logger} from '../src/logger';
 import {LogEventLevel} from '../src/logEvent';
 import {DynamicLevelSwitch} from '../src/dynamicLevelSwitch';
+// @ts-ignore
 import {ConcreteSink} from './helpers';
 
 describe('LoggerConfiguration', () => {

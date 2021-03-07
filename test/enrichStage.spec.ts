@@ -22,22 +22,24 @@ describe('EnrichStage', () => {
     });
 
     it('passes the event properties to the enricher to allow conditional masking', () => {
-        const enricherParams = [];
+        const extraParams = { url: 'testUrl2'};
         const enricher = (properties) => {
-            if (properties.password) {
-                return {
-                    password: 'REDACTED'
-                };
-            }
+            return {
+                password: 'REDACTED',
+                url: properties.url,
+                url2: extraParams.url
+            };
         };
         const enrichStage = new EnrichStage(enricher);
         const events = [
-            new LogEvent('', LogEventLevel.information, new MessageTemplate('Message 1'), { a: 1, password: 'secret' }),
+            new LogEvent('', LogEventLevel.information, new MessageTemplate('Message 1'), { a: 1, password: 'secret', url: 'testUrl' }),
         ];
         const enrichedEvents = enrichStage.emit(events);
         expect(enrichedEvents).to.have.length(1);
         expect(enrichedEvents[0]).to.have.nested.property('properties.password', 'REDACTED');
         expect(enrichedEvents[0]).to.have.nested.property('properties.a', 1);
+        expect(enrichedEvents[0]).to.have.nested.property('properties.url', 'testUrl');
+        expect(enrichedEvents[0]).to.have.nested.property('properties.url2', 'testUrl2');
     });
 
     it('does not allow direct manipulation of the event properties', () => {

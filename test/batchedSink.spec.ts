@@ -104,7 +104,7 @@ describe('BatchedSink', () => {
                 period: 0.02
             });
 
-            return new Promise(resolve => {
+            return new Promise<void>(resolve => {
                 batchedSink.emit([
                     new LogEvent('', LogEventLevel.information, new MessageTemplate('Test 1')),
                     new LogEvent('', LogEventLevel.information, new MessageTemplate('Test 2')),

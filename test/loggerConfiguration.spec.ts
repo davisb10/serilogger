@@ -2,14 +2,17 @@
 /// <reference path="../node_modules/@types/jest/index.d.ts" />
 /// <reference path="../node_modules/typemoq/dist/typemoq.d.ts" />
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 import * as TypeMoq from 'typemoq';
-import {LoggerConfiguration} from '../src/loggerConfiguration';
-import {Logger} from '../src/logger';
-import {LogEventLevel} from '../src/logEvent';
-import {DynamicLevelSwitch} from '../src/dynamicLevelSwitch';
+import { LoggerConfiguration } from '../src/loggerConfiguration';
+import { Logger } from '../src/logger';
+import { LogEventLevel } from '../src/logEvent';
+import { DynamicLevelSwitch } from '../src/dynamicLevelSwitch';
 // @ts-ignore
-import {ConcreteSink} from './helpers';
+import { ConcreteSink } from './helpers';
+import { Pipeline } from '../src/pipeline';
+import { ConsoleSink, defaultConsoleSinkOptions } from '../src/consoleSink';
+import { SinkStage } from '../src/sink';
 
 describe('LoggerConfiguration', () => {
     describe('create()', () => {
@@ -20,6 +23,84 @@ describe('LoggerConfiguration', () => {
         });
     });
 
+    describe('readFromConfiguration()', () => {
+        it('requires a valid configuration object', () => {
+            let loggerConfiguration = new LoggerConfiguration();
+            const invalidBaseName = {
+                invalid: {}
+            };
+            expect(() => loggerConfiguration.readFromConfiguration(invalidBaseName)).to.throw('Argument "config" must contain a property of "serilogger"');
+
+            const invalidProperty = {
+                serilogger: {
+                    badProperty: []
+                }
+            };
+            expect(() => loggerConfiguration.readFromConfiguration(invalidProperty)).to.throw('Argument "config" must contain a sub-property of "writeTo"');
+
+            const writeToNotAnArray = {
+                serilogger: {
+                    writeTo: 'INVALID'
+                }
+            };
+            expect(() => loggerConfiguration.readFromConfiguration(writeToNotAnArray)).to.throw('"writeTo" property must be an Array');
+
+            const writeToArrayEmpty = {
+                serilogger: {
+                    writeTo: []
+                }
+            };
+            expect(() => loggerConfiguration.readFromConfiguration(writeToArrayEmpty)).to.throw('"writeTo" property must have at least one element');
+        });
+
+        it('adds a base ConsoleSink', () => {
+            let loggerConfiguration = new LoggerConfiguration();
+            const config = {
+                serilogger: {
+                    writeTo: [
+                        {
+                            name: 'Console'
+                        }
+                    ]
+                }
+            };
+            loggerConfiguration = loggerConfiguration.readFromConfiguration(config);
+            const pipeline: Pipeline = loggerConfiguration['_pipeline'];
+            expect(pipeline['stages'].length).to.equal(1);
+            const consoleSink = (pipeline['stages'] as SinkStage[])[0]['sink'] as ConsoleSink;
+
+            expect(consoleSink['options'].includeProperties).to.equal(defaultConsoleSinkOptions.includeProperties);
+            expect(consoleSink['options'].includeTimestamps).to.equal(defaultConsoleSinkOptions.includeTimestamps);
+            expect(consoleSink['options'].removeLogLevelPrefix).to.equal(defaultConsoleSinkOptions.removeLogLevelPrefix);
+        });
+
+        it('adds a configured ConsoleSink', () => {
+            let loggerConfiguration = new LoggerConfiguration();
+            const config = {
+                serilogger: {
+                    writeTo: [
+                        {
+                            name: 'Console',
+                            args: {
+                                removeLogLevelPrefix: true,
+                                includeTimestamps: true,
+                                includeProperties: true
+                            }
+                        }
+                    ]
+                }
+            };
+            loggerConfiguration = loggerConfiguration.readFromConfiguration(config);
+            const pipeline: Pipeline = loggerConfiguration['_pipeline'];
+            expect(pipeline['stages'].length).to.equal(1);
+            const consoleSink = (pipeline['stages'] as SinkStage[])[0]['sink'] as ConsoleSink;
+
+            expect(consoleSink['options'].includeProperties).to.equal(true);
+            expect(consoleSink['options'].includeTimestamps).to.equal(true);
+            expect(consoleSink['options'].removeLogLevelPrefix).to.equal(true);
+        });
+    });
+
     describe('enrich()', () => {
         it('adds an enricher to the pipeline', () => {
             let emittedEvents = [];
@@ -27,8 +108,8 @@ describe('LoggerConfiguration', () => {
             sink.setup(m => m.emit(TypeMoq.It.isAny())).callback(events => emittedEvents = emittedEvents.concat(events));
 
             const logger = new LoggerConfiguration()
-                .enrich({c: 3})
-                .enrich(() => ({d: 4}))
+                .enrich({ c: 3 })
+                .enrich(() => ({ d: 4 }))
                 .writeTo(sink.object)
                 .create();
 

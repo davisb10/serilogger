@@ -1,10 +1,13 @@
-import {Pipeline} from './pipeline';
-import {Logger} from './logger';
-import {LogEvent, LogEventLevel, isEnabled, LogEventLevelSwitch} from './logEvent';
-import {DynamicLevelSwitch, DynamicLevelSwitchStage} from './dynamicLevelSwitch';
-import {FilterStage} from './filterStage';
-import {Sink, SinkStage} from './sink';
-import {EnrichStage, ObjectFactory} from './enrichStage';
+import { Pipeline } from './pipeline';
+import { Logger } from './logger';
+import { LogEvent, LogEventLevel, isEnabled, LogEventLevelSwitch } from './logEvent';
+import { DynamicLevelSwitch, DynamicLevelSwitchStage } from './dynamicLevelSwitch';
+import { FilterStage } from './filterStage';
+import { Sink, SinkStage } from './sink';
+import { EnrichStage, ObjectFactory } from './enrichStage';
+import { ConsoleSink } from './consoleSink';
+import { ColoredConsoleSink } from './coloredConsoleSink';
+import { SeqSink } from './seqSink';
 
 export interface MinLevel extends LogEventLevelSwitch<LoggerConfiguration> {
     (levelOrSwitch: LogEventLevel | string | number | DynamicLevelSwitch): LoggerConfiguration;
@@ -92,6 +95,45 @@ export class LoggerConfiguration {
      */
     suppressErrors(suppress?: boolean): LoggerConfiguration {
         this._suppressErrors = typeof suppress === 'undefined' || suppress;
+        return this;
+    }
+
+    /**
+     * 
+     * @param config 
+     * @param keyName 
+     * @returns 
+     */
+    readFromConfiguration(config: Object, keyName: string = 'serilogger'): LoggerConfiguration {
+        if (config === null || config === undefined) throw new TypeError('Argument "config" cannot be null or undefined');
+        if (!config[keyName]) throw new TypeError(`Argument "config" must contain a property of "${keyName}"`);
+
+        config = config[keyName];
+
+        if (!config["writeTo"]) throw new TypeError('Argument "config" must contain a sub-property of "writeTo"');
+        if (!(config["writeTo"] instanceof Array)) throw new TypeError('"writeTo" property must be an Array');
+        if ((config["writeTo"] as Array<any>).length === 0) throw new TypeError('"writeTo" property must have at least one element');
+
+        const writeToItems = config["writeTo"] as Array<any>;
+
+        for (let item of writeToItems) {
+            if (!item["name"]) continue;
+            switch (item["name"].toLowerCase()) {
+                case 'console':
+                    this._pipeline.addStage(new SinkStage(new ConsoleSink(item['args'] ?? null)));
+                    break;
+                case 'coloredconsole':
+                    this._pipeline.addStage(new SinkStage(new ColoredConsoleSink(item['args'] ?? null)));
+                    break;
+                case 'seq':
+                    if (!item['args']) throw new TypeError('Seq sink requires input arguments');
+                    this._pipeline.addStage(new SinkStage(new SeqSink(item['args'])));
+                    break;
+                default:
+                    throw new TypeError(`Unknown WriteTo Type: ${item['name']}`);
+            }
+        }
+
         return this;
     }
 

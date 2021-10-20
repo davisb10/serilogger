@@ -8,6 +8,8 @@ import {Logger} from '../src/logger';
 import {LogEvent, LogEventLevel} from '../src/logEvent';
 import {Pipeline} from '../src/pipeline';
 import {MessageTemplate} from '../src/messageTemplate';
+import { EnrichStage } from '../src/enrichStage';
+import {ConcretePipelineStage} from './helpers';
 
 function verifyLevel(level: LogEventLevel) {
     return (events: LogEvent[]) => events.length && events[0].level === level;
@@ -118,6 +120,28 @@ describe('Logger', () => {
         expect(() => logger.debug(undefined)).to.throw();
         expect(() => logger.verbose(undefined)).to.throw();
     });
+
+    // describe('createChild()', () => {
+    //     it('adds the new enrichment values to the pipeline', () => {
+    //         let emittedEvents = [];
+    //         const pipeline = new Pipeline();
+
+    //         const pipelineStage1 = TypeMoq.Mock.ofInstance(new EnrichStage({ b: 2 }));
+    //         const pipelineStage2 = TypeMoq.Mock.ofType(ConcretePipelineStage);
+    //         // pipelineStage1.setup(m => m['enricher']).returns(() => { return { b: 2 }; });
+    //         // pipelineStage1.setup(m => m.emit(TypeMoq.It.isAny())).returns(events => events);
+    //         pipelineStage2.setup(m => m.emit(TypeMoq.It.isAny())).callback(events => emittedEvents = events);
+
+    //         pipeline.addStage(pipelineStage1.object);
+    //         pipeline.addStage(pipelineStage2.object);
+
+    //         const logger = new Logger(pipeline);
+    //         logger.emit([new LogEvent('', LogEventLevel.information, new MessageTemplate('Test'), {})]);
+    //         // expect(emittedEvents).to.have.length(1);
+    //         expect(logger['pipeline']['stages']).to.have.length(2);
+    //         // expect(emittedEvents[0]).to.have.nested.property('properties.b', 2);
+    //     });
+    // });
 
     describe('emit()', () => {
         it('emits events to the pipeline', () => {

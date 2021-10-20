@@ -1,4 +1,4 @@
-import { Pipeline } from './pipeline';
+import { Pipeline, PipelineStage } from './pipeline';
 import { Logger } from './logger';
 import { LogEvent, LogEventLevel, isEnabled, LogEventLevelSwitch } from './logEvent';
 import { DynamicLevelSwitch, DynamicLevelSwitchStage } from './dynamicLevelSwitch';
@@ -17,11 +17,13 @@ export interface MinLevel extends LogEventLevelSwitch<LoggerConfiguration> {
  * Configures pipelines for new logger instances.
  */
 export class LoggerConfiguration {
-    private readonly _pipeline: Pipeline;
+    private readonly _stages: Pipeline;
+    private readonly _sinks: PipelineStage[];
     private _suppressErrors: boolean;
 
     constructor() {
-        this._pipeline = new Pipeline();
+        this._stages = new Pipeline();
+        this._sinks = [];
         this._suppressErrors = true;
     }
 
@@ -30,7 +32,7 @@ export class LoggerConfiguration {
      * @param {Sink} sink The sink to add.
      */
     writeTo(sink: Sink): LoggerConfiguration {
-        this._pipeline.addStage(new SinkStage(sink));
+        this._sinks.push(new SinkStage(sink));
         return this;
     }
 
@@ -42,9 +44,8 @@ export class LoggerConfiguration {
             throw new TypeError('Argument "levelOrSwitch" is not a valid LogEventLevel value or DynamicLevelSwitch instance.');
         } else if (levelOrSwitch instanceof DynamicLevelSwitch) {
             const switchStage = new DynamicLevelSwitchStage(levelOrSwitch);
-            const flush = this._pipeline.flush;
-            switchStage.setFlushDelegate(() => this._pipeline.flush());
-            this._pipeline.addStage(switchStage);
+            switchStage.setFlushDelegate(() => this._stages.flush());
+            this._stages.addStage(switchStage);
             return this;
         } else if (typeof levelOrSwitch === 'string') {
             const level = <LogEventLevel>LogEventLevel[levelOrSwitch.toLowerCase()];
@@ -70,7 +71,7 @@ export class LoggerConfiguration {
      */
     filter(predicate: (e: LogEvent) => boolean): LoggerConfiguration {
         if (predicate instanceof Function) {
-            this._pipeline.addStage(new FilterStage(predicate));
+            this._stages.addStage(new FilterStage(predicate));
         } else {
             throw new TypeError('Argument "predicate" must be a function.');
         }
@@ -82,7 +83,7 @@ export class LoggerConfiguration {
      */
     enrich(enricher: Object | ObjectFactory): LoggerConfiguration {
         if (enricher instanceof Function || enricher instanceof Object) {
-            this._pipeline.addStage(new EnrichStage(enricher));
+            this._stages.addStage(new EnrichStage(enricher));
         } else {
             throw new TypeError('Argument "enricher" must be either a function or an object.');
         }
@@ -120,14 +121,14 @@ export class LoggerConfiguration {
             if (!item["name"]) continue;
             switch (item["name"].toLowerCase()) {
                 case 'console':
-                    this._pipeline.addStage(new SinkStage(new ConsoleSink(item['args'] ?? null)));
+                    this._sinks.push(new SinkStage(new ConsoleSink(item['args'] ?? null)));
                     break;
                 case 'coloredconsole':
-                    this._pipeline.addStage(new SinkStage(new ColoredConsoleSink(item['args'] ?? null)));
+                    this._sinks.push(new SinkStage(new ColoredConsoleSink(item['args'] ?? null)));
                     break;
                 case 'seq':
                     if (!item['args']) throw new TypeError('Seq sink requires input arguments');
-                    this._pipeline.addStage(new SinkStage(new SeqSink(item['args'])));
+                    this._sinks.push(new SinkStage(new SeqSink(item['args'])));
                     break;
                 default:
                     throw new TypeError(`Unknown WriteTo Type: ${item['name']}`);
@@ -141,6 +142,7 @@ export class LoggerConfiguration {
      * Creates a new logger instance based on this configuration.
      */
     create(): Logger {
-        return new Logger(this._pipeline, this._suppressErrors);
+        this._sinks.forEach(sink => this._stages.addStage(sink));
+        return new Logger(this._stages, this._suppressErrors);
     }
 }

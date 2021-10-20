@@ -1,6 +1,6 @@
 {
   "name": "serilogger",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A structured logging framework for JavaScript, inspired by Serilog.",
   "main": "dist/serilogger.js",
   "jsnext:main": "dist/serilogger.es6.js",
@@ -12,6 +12,9 @@
     "build": "rimraf .rpt2_cache && rollup -c",
     "prepublish": "npm run build"
   },
+  "files": [
+    "dist/"
+  ],
   "jest": {
     "transform": {
       ".tsx?$": "ts-jest"

@@ -10,7 +10,7 @@ import { LogEventLevel } from '../src/logEvent';
 import { DynamicLevelSwitch } from '../src/dynamicLevelSwitch';
 // @ts-ignore
 import { ConcreteSink } from './helpers';
-import { Pipeline } from '../src/pipeline';
+import { Pipeline, PipelineStage } from '../src/pipeline';
 import { ConsoleSink, defaultConsoleSinkOptions } from '../src/consoleSink';
 import { SinkStage } from '../src/sink';
 
@@ -65,9 +65,9 @@ describe('LoggerConfiguration', () => {
                 }
             };
             loggerConfiguration = loggerConfiguration.readFromConfiguration(config);
-            const pipeline: Pipeline = loggerConfiguration['_pipeline'];
-            expect(pipeline['stages'].length).to.equal(1);
-            const consoleSink = (pipeline['stages'] as SinkStage[])[0]['sink'] as ConsoleSink;
+            const sinks: PipelineStage[] = loggerConfiguration['_sinks'];
+            expect(sinks.length).to.equal(1);
+            const consoleSink = (sinks as SinkStage[])[0]['sink'] as ConsoleSink;
 
             expect(consoleSink['options'].includeProperties).to.equal(defaultConsoleSinkOptions.includeProperties);
             expect(consoleSink['options'].includeTimestamps).to.equal(defaultConsoleSinkOptions.includeTimestamps);
@@ -91,9 +91,9 @@ describe('LoggerConfiguration', () => {
                 }
             };
             loggerConfiguration = loggerConfiguration.readFromConfiguration(config);
-            const pipeline: Pipeline = loggerConfiguration['_pipeline'];
-            expect(pipeline['stages'].length).to.equal(1);
-            const consoleSink = (pipeline['stages'] as SinkStage[])[0]['sink'] as ConsoleSink;
+            const sinks: PipelineStage[] = loggerConfiguration['_sinks'];
+            expect(sinks.length).to.equal(1);
+            const consoleSink = (sinks as SinkStage[])[0]['sink'] as ConsoleSink;
 
             expect(consoleSink['options'].includeProperties).to.equal(true);
             expect(consoleSink['options'].includeTimestamps).to.equal(true);

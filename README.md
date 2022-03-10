@@ -12,7 +12,7 @@ _Note: Originally forked from the structured-log project_
 
 ```js
 // ES6 Style
-import {LoggerConfiguration, ConsoleSink} from 'serilogger';
+import { LoggerConfiguration, ConsoleSink } from 'serilogger';
 
 const logger = new LoggerConfiguration()
                     .writeTo(new ConsoleSink())
@@ -24,8 +24,8 @@ logger.info('Hello {Name}!', 'Greg');
 var serilogger = require('serilogger');
 
 var logger = serilogger.configure()
-                         .writeTo(new serilogger.ConsoleSink())
-                         .create();
+                       .writeTo(new serilogger.ConsoleSink())
+                       .create();
 
 logger.info('Hello {Name}!', 'Greg');
 ```
@@ -281,7 +281,7 @@ It supports the following properties:
 |`includeProperties`|If `true`, the properties of the log event will be written to the console in addition to the message.|`false`|
 |`includeTimestamps`|If `true`, timestamps will be included in the message that is written to the console.|`false`|
 |`removeLogLevelPrefix`| If `true`, the prefix (e.g. [Information]) will not be included in the message|`false`|
-|`restrictedToMinimumLevel`|If set, only events of the specified level or higher will be output to the console.||
+|`restrictedToMinimumLevel`|If set, only events of the specified level or higher will be output to the console.|`undefined`|
 
 ### Colored Console Sink
 
@@ -356,3 +356,21 @@ It supports the following properties:
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
 |`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
 |`url`|URL to the Seq server|&#x2713;|
+
+## Child Logger Functionality
+
+After a logger object has been created, you may want to create a clone / child logger and add some scoped enrichment properties. To do this, you can just use the .createChild() method, passing in an enrichment parameter just like the original .enrich() method. 
+
+This method copies all of the existing stages and sinks and adds the new enrichment stage to the end of the pipeline.
+
+```js
+const logger = new LoggerConfiguration()
+                    .writeTo(new ConsoleSink())
+                    .create();
+
+const childLogger = logger.createChild({
+    'scope': 'childLogger'
+});
+
+childLogger.info('...');
+```

@@ -1,6 +1,6 @@
 {
   "name": "serilogger",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A structured logging framework for JavaScript, inspired by Serilog.",
   "main": "dist/serilogger.js",
   "jsnext:main": "dist/serilogger.es6.js",
@@ -10,12 +10,10 @@
     "test": "jest",
     "test-watch": "jest --watch",
     "test-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
-    "build": "rimraf .rpt2_cache && rollup -c",
-    "pack_publish": "del /f /q /s dist && npm run build && copy package.json dist && cd dist && npm publish"
+    "package": "rimraf .rpt2_cache && rollup -c",
+    "copy": "copy package.json dist",
+    "pack_publish": "del /f /q /s dist && npm run package && npm run copy && cd dist && npm publish"
   },
-  "files": [
-    "dist/"
-  ],
   "jest": {
     "transform": {
       ".tsx?$": "ts-jest"

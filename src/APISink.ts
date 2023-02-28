@@ -30,7 +30,7 @@ export interface APISinkOptions {
     /**
      * Custom headers to be sent with the request
      */
-    headers: {[key: string]: string};
+    headers?: {[key: string]: string};
 }
 
 export class APISink extends SeqSink {
@@ -39,10 +39,10 @@ export class APISink extends SeqSink {
     constructor(options: APISinkOptions) {
         let seqOptions = {
             apiKey: "",
-            compact: options.compact,
-            durable: options.durable,
+            compact: options.compact || false,
+            durable: options.durable || false,
             levelSwitch: options.levelSwitch,
-            suppressErrors: options.suppressErrors,
+            suppressErrors: options.suppressErrors || true,
             url: options.url
         };
         super(seqOptions);

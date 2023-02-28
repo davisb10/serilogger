@@ -65,10 +65,4 @@ export class APISink extends SeqSink {
 
         return promise;
     }
-
-    protected logSuppressedError(reason: string) {
-        if (typeof console !== 'undefined' && console.warn) {
-            console.warn('Suppressed error when logging to API: ' + reason);
-        }
-    }
 }

@@ -203,9 +203,9 @@ export class SeqSink implements Sink {
         return promise;
     }
 
-    protected logSuppressedError(reason: string) {
+    private logSuppressedError(reason: string) {
         if (typeof console !== 'undefined' && console.warn) {
-            console.warn('Suppressed error when logging to Seq: ' + reason);
+            console.warn('Suppressed error when logging to ' + this.toString() + ': ' + reason);
         }
     }
 

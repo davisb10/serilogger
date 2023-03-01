@@ -188,6 +188,7 @@ const logger2 = new LoggerConfiguration()
 |[ConsoleSink](#console-sink)|Outputs events through the `console` object in Node or the browser.|
 |[ColoredConsoleSink](#colored-console-sink)|Outputs the same as **ConsoleSink** but with **Colors**.|
 |[SeqSink](#seq-sink)|Outputs events to a Seq server|
+|[APISink](#api-sink)|Outputs events to a custom API|
 
 ### Filtering
 
@@ -356,6 +357,55 @@ It supports the following properties:
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
 |`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
 |`url`|URL to the Seq server|&#x2713;|
+
+Or, if you need to develop a custom sink and using ES6 or TypeScript, you can use it as a base class to add any custom behaviors :
+
+```js
+class MySink extends SeqSink {
+  constructor() {
+    // ...
+    super(options: SeqSinkOptions);
+    // ...
+  }
+
+  // Override postToLogger to add your own sink's behavior, and optionally toString
+
+  public toString() {
+    return 'MySink';
+  }
+
+  protected postToLogger(url: any, apiKey: any, compact: boolean, body: any) {
+    // ...
+    const promise = fetch(`${url}`, {
+      // ...
+    });
+    return promise;
+   }
+}
+```
+
+### API Sink
+
+The `APISink` outputs events to a custom POST API with the option of custom headers along the request. It can be used like any of the other sinks.
+
+```js
+.writeTo(new SeqSink({
+  url: "http://localhost:5341/api/log/custom",
+  headers: {"header1": "value1"}
+}))
+```
+
+The `options` parameter is required, however the only required property is the `url`.
+It supports the following properties:
+
+|Key|Description|Required?|
+|---|---|---|
+|`compact`|If true, events be serialized using Serilog's compact format|&#x2717;|
+|`durable`|If true, events will be buffered in local storage if available|&#x2717;|
+|`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
+|`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
+|`url`|URL to the API|&#x2713;|
+|`headers`|Any headers required to be sent with the request|&#x2713;|
 
 ## Child Logger Functionality
 

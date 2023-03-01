@@ -72,12 +72,12 @@ export class SeqSink implements Sink {
             const requests = {};
             for (let i = 0; i < localStorage.length; ++i) {
                 const storageKey = localStorage.key(i);
-                if (storageKey.indexOf('serilogger-seq-sink') !== 0) {
+                if (storageKey.indexOf('serilogger-' + this.toString()) !== 0) {
                     continue;
                 }
 
                 const body = localStorage.getItem(storageKey);
-                requests[storageKey] = this.postToSeq(this.url, this.apiKey, this.compact, body)
+                requests[storageKey] = this.postToLogger(this.url, this.apiKey, this.compact, body)
                     .then(() => localStorage.removeItem(storageKey))
                     .catch(reason => {
                         if (this.suppressErrors) this.logSuppressedError(reason); 
@@ -142,12 +142,12 @@ export class SeqSink implements Sink {
 
         let storageKey: string;
         if (this.durable) {
-            storageKey = `serilogger-seq-sink-${new Date().getTime()}-${Math.floor(Math.random() * 1000000) + 1}`;
+            storageKey = `serilogger-${this.toString()}-${new Date().getTime()}-${Math.floor(Math.random() * 1000000) + 1}`;
             localStorage.setItem(storageKey, body);
         }
 
         try {
-            const response = await this.postToSeq(this.url, this.apiKey, this.compact, body);
+            const response = await this.postToLogger(this.url, this.apiKey, this.compact, body);
             const json = await response.json();
             this.updateLogLevel(json);
             if (storageKey)
@@ -190,7 +190,7 @@ export class SeqSink implements Sink {
         }
     }
 
-    private postToSeq(url: any, apiKey: any, compact: boolean, body: any) {
+    protected postToLogger(url: any, apiKey: any, compact: boolean, body: any) {
         const apiKeyParameter = apiKey ? `?apiKey=${apiKey}` : '';
         const promise = fetch(`${url}/api/events/raw${apiKeyParameter}`, {
             headers: {
@@ -205,7 +205,7 @@ export class SeqSink implements Sink {
 
     private logSuppressedError(reason: string) {
         if (typeof console !== 'undefined' && console.warn) {
-            console.warn('Suppressed error when logging to Seq: ' + reason);
+            console.warn('Suppressed error when logging to ' + this.toString() + ': ' + reason);
         }
     }
 

@@ -8,7 +8,7 @@ import {SeqSink} from '../src/seqSink';
 
 describe('SeqSink', () => {
     it('should throw if options are missing', () => {
-        expect(() => new SeqSink(null)).to.throw();
+        expect(() => new SeqSink({ url: '' })).to.throw();
     });
 
     it('should strip trailing slash from the provided URL', () => {

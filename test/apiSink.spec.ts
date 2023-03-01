@@ -3,16 +3,16 @@
 // <reference path="../node_modules/typemoq/dist/typemoq.d.ts" />
 
 import {expect} from 'chai';
-import {APISink} from '../src/apiSink';
+import {ApiSink} from '../src/apiSink';
 
 
-describe('APISink', () => {
+describe('ApiSink', () => {
     it('should throw if options are missing', () => {
-        expect(() => new APISink(null)).to.throw();
+        expect(() => new ApiSink({ url: '' })).to.throw();
     });
 
     it('should strip trailing slash from the provided URL', () => {
-        const sink = new APISink({url: 'https://test/'});
+        const sink = new ApiSink({url: 'https://test/'});
         expect(sink.url).to.equal('https://test');
     })
 });

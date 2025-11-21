@@ -117,23 +117,52 @@ export class ApiSink implements Sink {
 
     private async sendToServer(events: LogEvent[]) {
         const seqEvents = this.compact ? events.reduce((s, e) => {
-            const mappedEvent = {
+            // copy properties so we can pull out renderings if present
+            const props: any = e.properties ? { ...e.properties } : {};
+
+            const mappedEvent: any = {
                 '@l': this.mapLogLevel(e.level),
                 '@mt': e.messageTemplate.raw,
-                '@t': e.timestamp,
-                ...e.properties
+                '@t': e.timestamp
             };
+
+            // If compact format has an explicit @r array in properties, move it to top-level
+            if (props && props['@r']) {
+                mappedEvent['@r'] = props['@r'];
+                delete props['@r'];
+            }
+
+            // If someone provided a Renderings object on properties, include it too
+            if (props && props['Renderings']) {
+                mappedEvent['Renderings'] = props['Renderings'];
+                delete props['Renderings'];
+            }
+
+            // spread remaining properties at top-level (compact format uses top-level properties)
+            Object.assign(mappedEvent, props);
+
             if (e.error instanceof Error && e.error.stack) {
                 mappedEvent['@x'] = e.error.stack;
             }
             return `${s}${JSON.stringify(mappedEvent)}\n`;
         }, '').replace(/\s+$/g, '') : events.map(e => {
-            const mappedEvent = {
+            // For non-compact JSON format, keep Properties as a separate object,
+            // but extract any Renderings so they appear at the top-level like Serilog's JsonFormatter.
+            const props: any = e.properties ? { ...e.properties } : {};
+
+            const mappedEvent: any = {
                 Level: this.mapLogLevel(e.level),
                 MessageTemplate: e.messageTemplate.raw,
-                Properties: e.properties,
+                Properties: props,
                 Timestamp: e.timestamp
             };
+
+            if (props && props['Renderings']) {
+                mappedEvent['Renderings'] = props['Renderings'];
+                // remove from Properties to avoid duplication
+                delete mappedEvent.Properties['Renderings'];
+            }
+
             if (e.error instanceof Error && e.error.stack) {
                 mappedEvent['Exception'] = e.error.stack;
             }

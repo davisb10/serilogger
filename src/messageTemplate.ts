@@ -1,9 +1,10 @@
-const tokenizer = /{@?\w+}/g;
+const tokenizer = /\{(@?[^}:]+)(?:\:([^}]+))?\}/g;
 
 interface Token {
     name?: string;
     text?: string;
     destructure?: boolean;
+    format?: string;
     raw?: string;
 }
 
@@ -45,12 +46,39 @@ export class MessageTemplate {
             return this.raw;
         }
         properties = properties || {};
+        // handle compact '@r' array which contains renderings in order
+        const compactRenderings: any[] | undefined = (properties as any)['@r'];
+        let compactIndex = 0;
         const result = [];
         for (let i = 0; i < this.tokens.length; ++i) {
             const token = this.tokens[i];
             if (typeof token.name === 'string') {
+                // If there is a format and a rendering available, prefer that
+                if (token.format) {
+                    // compact renderings (@r) are positional
+                    if (Array.isArray(compactRenderings) && compactIndex < compactRenderings.length) {
+                        result.push(compactRenderings[compactIndex++]);
+                        continue;
+                    }
+
+                    // JsonFormatter 'Renderings' property - map by token name
+                    const renderings = (properties as any)['Renderings'];
+                    if (renderings && renderings[token.name] && Array.isArray(renderings[token.name])) {
+                        const matches = (renderings[token.name] as any[]).filter(r => !r.Format || r.Format === token.format);
+                        if (matches.length) {
+                            result.push(matches[0].Rendering);
+                            continue;
+                        }
+                        // fallback to first rendering
+                        if ((renderings[token.name] as any[]).length) {
+                            result.push((renderings[token.name] as any[])[0].Rendering);
+                            continue;
+                        }
+                    }
+                }
+
                 if (properties.hasOwnProperty(token.name)) {
-                    result.push(this.toText(properties[token.name]));
+                    result.push(this.toText((properties as any)[token.name]));
                 } else {
                     result.push(token.raw);
                 }
@@ -101,16 +129,18 @@ export class MessageTemplate {
             }
 
             let destructure = false;
+            let name = result[1];
+            const format = result[2];
 
-            let token = result[0].slice(1, -1);
-            if (token.indexOf('@') === 0) {
-                token = token.slice(1);
+            if (name.indexOf('@') === 0) {
+                name = name.slice(1);
                 destructure = true;
             }
 
             tokens.push({
-                name: token,
+                name: name,
                 destructure,
+                format: typeof format === 'string' ? format : undefined,
                 raw: result[0]
             });
 

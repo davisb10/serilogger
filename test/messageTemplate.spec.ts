@@ -114,5 +114,17 @@ describe('MessageTemplate', () => {
 			};
 			expect(messageTemplate.render({ p: f })).toEqual(f.toString());
 		});
+
+		it('uses Renderings object for formatted tokens', () => {
+			const messageTemplate = new MessageTemplate('Hello, {N:x8}!');
+			const props: any = { N: 123, Renderings: { N: [{ Format: 'x8', Rendering: '0000007b' }] } };
+			expect(messageTemplate.render(props)).toEqual('Hello, 0000007b!');
+		});
+
+		it('uses compact @r array for formatted tokens (positional)', () => {
+			const messageTemplate = new MessageTemplate('Hello, {N:x8} {M}');
+			const props: any = { N: 123, M: 'x', '@r': ['0000007b'] };
+			expect(messageTemplate.render(props)).toEqual('Hello, 0000007b x');
+		});
 	});
 });

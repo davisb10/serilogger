@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "es2015",
+    "target": "es6",
+    "module": "es6",
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
-    "noImplicitAny": false
+	"importHelpers": false,
+    "noImplicitAny": false,
+	"paths": {
+      "tslib" : ["./node_modules/tslib/tslib.d.ts"]
+    },
   },
   "include": [
     "src/**/*"

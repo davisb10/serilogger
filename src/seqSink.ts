@@ -8,11 +8,6 @@ export interface SeqSinkOptions {
 	apiKey?: string;
 
 	/**
-	 * If true, events be serialized using Serilog's compact format
-	 */
-	compact?: boolean;
-
-	/**
 	 * If true, events will be buffered in local storage if available
 	 */
 	durable?: boolean;
@@ -44,7 +39,7 @@ export class SeqSink extends ApiSink {
 
 	constructor(options: SeqSinkOptions) {
 		super({
-			compact: options.compact || false,
+			compact: true,
 			durable: options.durable || false,
 			includeEventId: options.includeEventId || false,
 			levelSwitch: options.levelSwitch,
@@ -62,9 +57,9 @@ export class SeqSink extends ApiSink {
 
 	protected postToLogger(url: any, body: any) {
 		const apiKeyParameter = this.apiKey ? `?apiKey=${this.apiKey}` : '';
-		const promise = fetch(`${url}/api/events/raw${apiKeyParameter}`, {
+		const promise = fetch(`${url}/ingest/clef${apiKeyParameter}`, {
 			headers: {
-				'content-type': this.compact ? 'application/vnd.serilog.clef' : 'application/json'
+				'content-type': 'application/vnd.serilog.clef'
 			},
 			method: 'POST',
 			body

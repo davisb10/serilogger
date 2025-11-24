@@ -279,6 +279,6 @@ export class MessageTemplate {
 		hash ^= (hash >> 11);
 		hash += (hash << 15);
 
-		return hash;
+		return Math.abs(hash); // Ensure value is positive
 	}
 }

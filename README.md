@@ -414,7 +414,6 @@ It supports the following properties:
 |Key|Description|Required?|
 |---|---|---|
 |`apiKey`|API key to use|&#x2717;|
-|`compact`|If true, events be serialized using Serilog's compact format|&#x2717;|
 |`durable`|If true, events will be buffered in local storage if available|&#x2717;|
 |`includeEventId`|If true, Event Ids will be included in the message. The value is the raw message template converted to 32-bit hash expressed as a hexadecimal string|&#x2717;|
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|

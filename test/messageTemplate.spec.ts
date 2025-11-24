@@ -115,16 +115,51 @@ describe('MessageTemplate', () => {
 			expect(messageTemplate.render({ p: f })).toEqual(f.toString());
 		});
 
-		it('uses Renderings object for formatted tokens', () => {
-			const messageTemplate = new MessageTemplate('Hello, {N:x8}!');
-			const props: any = { N: 123, Renderings: { N: [{ Format: 'x8', Rendering: '0000007b' }] } };
-			expect(messageTemplate.render(props)).toEqual('Hello, 0000007b!');
+		it('uses Renderings object for formatted tokens - hexadecimal', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:x}');
+			const props: any = { N: 123 };
+			expect(messageTemplate.render(props)).toEqual('Value = 7b');
 		});
 
-		it('uses compact @r array for formatted tokens (positional)', () => {
-			const messageTemplate = new MessageTemplate('Hello, {N:x8} {M}');
-			const props: any = { N: 123, M: 'x', '@r': ['0000007b'] };
-			expect(messageTemplate.render(props)).toEqual('Hello, 0000007b x');
+		it('uses Renderings object for formatted tokens - hexadecimal (padded)', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:x8}');
+			const props: any = { N: 123 };
+			expect(messageTemplate.render(props)).toEqual('Value = 0000007b');
+		});
+
+		it('uses Renderings object for formatted tokens - percent (direct)', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:p2}');
+			const props: any = { N: 0.1234 };
+			expect(messageTemplate.render(props)).toEqual('Value = 12.34%');
+		});
+
+		it('uses Renderings object for formatted tokens - percent (rounded)', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:p2}');
+			const props: any = { N: 0.12346 };
+			expect(messageTemplate.render(props)).toEqual('Value = 12.35%');
+		});
+
+		it('uses Renderings object for formatted tokens - uppercase', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:u}');
+			const props: any = { N: 'abcdefg' };
+			expect(messageTemplate.render(props)).toEqual('Value = ABCDEFG');
+		});
+
+		it('uses Renderings object for formatted tokens - lowercase', () => {
+			const messageTemplate = new MessageTemplate('Value = {N:l}');
+			const props: any = { N: 'ABCDEFG' };
+			expect(messageTemplate.render(props)).toEqual('Value = abcdefg');
+		});
+	});
+
+	describe('computeEventId()', () => {
+		it('computes a stable event ID for the message template', () => {
+			const mt1 = new MessageTemplate('Hello, {name}!');
+			const mt2 = new MessageTemplate('Hello, {name}!');
+			const mt3 = new MessageTemplate('Goodbye, {name}.');
+
+			expect(mt1.computeEventId()).toEqual(mt2.computeEventId());
+			expect(mt1.computeEventId()).not.toEqual(mt3.computeEventId());
 		});
 	});
 });

@@ -23,6 +23,11 @@ export interface ApiSinkOptions {
      */
     suppressErrors?: boolean;
 
+	/**
+	 * If true, event IDs will be included in the logged events
+	 */
+	includeEventId?: boolean;
+
     /**
      * URL of the API
      */
@@ -40,6 +45,7 @@ export class ApiSink implements Sink {
     headers: {[key: string]: string} = null;
     durable: boolean = false;
     compact: boolean = false;
+	includeEventId: boolean = false;
     levelSwitch: DynamicLevelSwitch = null;
     refreshLevelSwitchTimeoutId = null;
     refreshLevelSwitchTimeoutInterval = 2 * 60 * 1000;
@@ -67,6 +73,7 @@ export class ApiSink implements Sink {
         }
 
         this.compact = !!options.compact;
+		this.includeEventId = !!options.includeEventId;
 
         if (this.durable) {
             const requests = {};
@@ -126,17 +133,10 @@ export class ApiSink implements Sink {
                 '@t': e.timestamp
             };
 
-            // If compact format has an explicit @r array in properties, move it to top-level
-            if (props && props['@r']) {
-                mappedEvent['@r'] = props['@r'];
-                delete props['@r'];
-            }
+			if (this.includeEventId) mappedEvent['@i'] = e.eventId.toString(16); // event id as hex string
 
-            // If someone provided a Renderings object on properties, include it too
-            if (props && props['Renderings']) {
-                mappedEvent['Renderings'] = props['Renderings'];
-                delete props['Renderings'];
-            }
+			const renderings = e.messageTemplate.getRenderingsCompact();
+			if (renderings.length > 0) mappedEvent['@r'] = renderings;
 
             // spread remaining properties at top-level (compact format uses top-level properties)
             Object.assign(mappedEvent, props);
@@ -157,11 +157,12 @@ export class ApiSink implements Sink {
                 Timestamp: e.timestamp
             };
 
-            if (props && props['Renderings']) {
-                mappedEvent['Renderings'] = props['Renderings'];
-                // remove from Properties to avoid duplication
-                delete mappedEvent.Properties['Renderings'];
-            }
+			if (this.includeEventId) mappedEvent['EventId'] = e.eventId.toString(16); // event id as hex string
+
+			const renderings = e.messageTemplate.getRenderings();
+			if (Object.keys(renderings).length > 0) {
+				mappedEvent['Renderings'] = renderings;
+			}
 
             if (e.error instanceof Error && e.error.stack) {
                 mappedEvent['Exception'] = e.error.stack;

@@ -51,6 +51,7 @@ export class LogEvent {
 		this.timestamp = timestamp;
 		this.level = level;
 		this.messageTemplate = messageTemplate;
+		this.eventId = messageTemplate.computeEventId();
 		this.properties = properties || {};
 		this.error = error || undefined;
 	}
@@ -75,6 +76,11 @@ export class LogEvent {
 	 * Gets or sets an object containing the captured properties of this event.
 	 */
 	properties: Object;
+
+	/**
+	 * Gets or sets a unique identifier for this event.
+	 */
+	eventId: number;
 
 	/**
 	 * Gets or sets an error associated with this event.

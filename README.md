@@ -265,6 +265,17 @@ the last call will be used.
 > Only errors throw in the logging pipeline will be suppressed.
 > Errors that occur during configuration will always propagate.
 
+### Expressions
+
+Serilog style string format expressions are supported. The current formats are included:
+
+|Format|Description|Usage|Example|
+|---|---|---|---|
+|x|hexadecimal|"{N:x}"|"Value = {N:x}" where N = 123 -> "Value = 7b"|
+|p|percent|"{N:p2}"|"Value = {N:p2}" where N = 0.1234 -> "Value = 12.34%"|
+|u|uppercase|"{N:u}"|"Value = {N:u}" where N = 'abcdefg' -> "Value = ABCDEFG"|
+|l|lowercase|"{N:l}"|{Value = {N:l}" where N = 'ABCEFG' -> "Value = abcdefg"|
+
 ### Console Sink
 
 The `ConsoleSink`, which outputs event to the Node.js or browser console, is provided by default.
@@ -354,6 +365,7 @@ It supports the following properties:
 |---|---|---|
 |`compact`|If true, events be serialized using Serilog's compact format|&#x2717;|
 |`durable`|If true, events will be buffered in local storage if available|&#x2717;|
+|`includeEventId`|If true, Event Ids will be included in the message. The value is the raw message template converted to 32-bit hash expressed as a hexadecimal string|&#x2717;|
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
 |`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
 |`url`|URL to the API|&#x2713;|
@@ -404,6 +416,7 @@ It supports the following properties:
 |`apiKey`|API key to use|&#x2717;|
 |`compact`|If true, events be serialized using Serilog's compact format|&#x2717;|
 |`durable`|If true, events will be buffered in local storage if available|&#x2717;|
+|`includeEventId`|If true, Event Ids will be included in the message. The value is the raw message template converted to 32-bit hash expressed as a hexadecimal string|&#x2717;|
 |`levelSwitch`|DynamicLevelSwitch which the Seq log level will control and use|&#x2717;|
 |`suppressErrors`|If true, errors in the pipeline will be suppressed and logged to the console instead (defaults to true)|&#x2717;|
 |`url`|URL to the Seq server|&#x2713;|

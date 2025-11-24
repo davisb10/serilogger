@@ -28,6 +28,11 @@ export interface SeqSinkOptions {
 	suppressErrors?: boolean;
 
 	/**
+	 * If true, event IDs will be included in the logged events
+	 */
+	includeEventId?: boolean;
+
+	/**
 	 * URL to the Seq server
 	 */
 	url: string;
@@ -41,6 +46,7 @@ export class SeqSink extends ApiSink {
 		super({
 			compact: options.compact || false,
 			durable: options.durable || false,
+			includeEventId: options.includeEventId || false,
 			levelSwitch: options.levelSwitch,
 			suppressErrors: options.suppressErrors || true,
 			url: options.url,
